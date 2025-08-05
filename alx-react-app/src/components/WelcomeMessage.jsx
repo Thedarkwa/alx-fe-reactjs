@@ -11,4 +11,3 @@ function WelcomeMessage() {
 }
 
 export default WelcomeMessage;
-
