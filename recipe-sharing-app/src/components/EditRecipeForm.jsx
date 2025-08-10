@@ -1,35 +1,33 @@
-import { useState } from 'react';
-import { useRecipeStore } from '../store/recipeStore';
+import { useState } from "react";
+import { useRecipeStore } from "./recipeStore";
 
-const EditRecipeForm = ({ recipe }) => {
-  const updateRecipe = useRecipeStore((s) => s.updateRecipe);
+const EditRecipeForm = ({ recipe, onClose }) => {
+  const updateRecipe = useRecipeStore((state) => state.updateRecipe);
   const [title, setTitle] = useState(recipe.title);
-  const [description, setDescription] = useState(recipe.description);
-  const [message, setMessage] = useState('');
+  const [ingredients, setIngredients] = useState(recipe.ingredients);
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    if (!title.trim() || !description.trim()) {
-      setMessage('Title and description cannot be empty.');
-      return;
-    }
-    updateRecipe({ id: recipe.id, title: title.trim(), description: description.trim() });
-    setMessage('Updated.');
-    setTimeout(() => setMessage(''), 1500);
+  const handleSubmit = (event) => {
+    event.preventDefault(); // ✅ prevents page reload
+    updateRecipe(recipe.id, { title, ingredients });
+    onClose();
   };
 
   return (
     <form onSubmit={handleSubmit}>
-      <div>
-        <label>Title</label><br />
-        <input value={title} onChange={(e) => setTitle(e.target.value)} />
-      </div>
-      <div>
-        <label>Description</label><br />
-        <textarea value={description} onChange={(e) => setDescription(e.target.value)} />
-      </div>
+      <h2>Edit Recipe</h2>
+      <input
+        type="text"
+        placeholder="Recipe title"
+        value={title}
+        onChange={(e) => setTitle(e.target.value)}
+      />
+      <textarea
+        placeholder="Ingredients"
+        value={ingredients}
+        onChange={(e) => setIngredients(e.target.value)}
+      />
       <button type="submit">Save</button>
-      {message && <div style={{ marginTop: 6 }}>{message}</div>}
+      <button type="button" onClick={onClose}>Cancel</button>
     </form>
   );
 };
