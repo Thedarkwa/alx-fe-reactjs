@@ -1,48 +1,41 @@
 // src/components/recipeStore.js
 import { create } from 'zustand';
 
-export const useRecipeStore = create((set, get) => ({
+export const useRecipeStore = create((set) => ({
   recipes: [],
-  searchTerm: '',
-  filteredRecipes: [],
-  
-  setSearchTerm: (term) => {
-    set({ searchTerm: term });
-    get().filterRecipes();
-  },
 
-  filterRecipes: () => {
-    const { recipes, searchTerm } = get();
-    set({
-      filteredRecipes: recipes.filter(recipe =>
-        recipe.title.toLowerCase().includes(searchTerm.toLowerCase())
-      )
-    });
-  },
+  // Store array of favorite recipe IDs
+  favorites: [],
 
-  addRecipe: (newRecipe) => {
+  // Store recommendations
+  recommendations: [],
+
+  // Add a recipe to favorites
+  addFavorite: (recipeId) =>
+    set((state) => ({
+      favorites: state.favorites.includes(recipeId)
+        ? state.favorites // avoid duplicates
+        : [...state.favorites, recipeId],
+    })),
+
+  // Remove a recipe from favorites
+  removeFavorite: (recipeId) =>
+    set((state) => ({
+      favorites: state.favorites.filter((id) => id !== recipeId),
+    })),
+
+  // Generate mock recommendations based on favorites
+  generateRecommendations: () =>
     set((state) => {
-      const updated = [...state.recipes, newRecipe];
-      return { recipes: updated, filteredRecipes: updated };
-    });
-  },
-
-  updateRecipe: (updatedRecipe) => {
-    set((state) => {
-      const updated = state.recipes.map(recipe =>
-        recipe.id === updatedRecipe.id ? updatedRecipe : recipe
+      const recommended = state.recipes.filter(
+        (recipe) =>
+          !state.favorites.includes(recipe.id) && // avoid already favorited ones
+          Math.random() > 0.5 // simple placeholder logic
       );
-      return { recipes: updated, filteredRecipes: updated };
-    });
-  },
+      return { recommendations: recommended };
+    }),
 
-  deleteRecipe: (id) => {
-    set((state) => {
-      const updated = state.recipes.filter(recipe => recipe.id !== id);
-      return { recipes: updated, filteredRecipes: updated };
-    });
-  },
-
-  setRecipes: (recipes) => set({ recipes, filteredRecipes: recipes })
+  // Setter for recipes (in case you need it)
+  setRecipes: (recipes) => set({ recipes }),
 }));
 
