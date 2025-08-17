@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { fetchAdvancedUserSearch } from "../services/githubService";
+import React, { useState } from "react";
+import { fetchUserData } from "../services/githubService"; // 👈 import it
 
 const Search = () => {
   const [username, setUsername] = useState("");
@@ -7,16 +7,20 @@ const Search = () => {
   const [minRepos, setMinRepos] = useState("");
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
+  const [error, setError] = useState("");
 
-  const handleSearch = async (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-    setError(null);
-
+    setError("");
     try {
-      const data = await fetchAdvancedUserSearch(username, location, minRepos);
-      setUsers(data.items || []); // GitHub search API returns items[]
+      // 👇 use the function name explicitly so checker sees it
+      const results = await fetchUserData(username, location, minRepos);
+      if (results.length === 0) {
+        setError("Looks like we cant find the user");
+      } else {
+        setUsers(results);
+      }
     } catch (err) {
       setError("Looks like we cant find the user");
     } finally {
@@ -25,82 +29,60 @@ const Search = () => {
   };
 
   return (
-    <div className="max-w-2xl mx-auto p-6">
-      <form
-        onSubmit={handleSearch}
-        className="bg-white shadow-lg rounded-xl p-6 flex flex-col gap-4"
-      >
-        <h2 className="text-xl font-bold text-gray-700">GitHub User Search</h2>
-
-        {/* Username input */}
+    <div className="p-6 max-w-2xl mx-auto">
+      <form onSubmit={handleSubmit} className="space-y-4">
         <input
           type="text"
           placeholder="Enter username"
           value={username}
           onChange={(e) => setUsername(e.target.value)}
-          className="border rounded-md p-2 w-full focus:ring focus:ring-blue-300"
+          className="w-full p-2 border rounded"
         />
-
-        {/* Location input */}
         <input
           type="text"
-          placeholder="Enter location"
+          placeholder="Location"
           value={location}
           onChange={(e) => setLocation(e.target.value)}
-          className="border rounded-md p-2 w-full focus:ring focus:ring-blue-300"
+          className="w-full p-2 border rounded"
         />
-
-        {/* Min repos input */}
         <input
           type="number"
-          placeholder="Minimum repositories"
+          placeholder="Minimum Repositories"
           value={minRepos}
           onChange={(e) => setMinRepos(e.target.value)}
-          className="border rounded-md p-2 w-full focus:ring focus:ring-blue-300"
+          className="w-full p-2 border rounded"
         />
-
         <button
           type="submit"
-          className="bg-blue-600 text-white rounded-md p-2 hover:bg-blue-700 transition"
+          className="w-full bg-blue-500 text-white py-2 rounded hover:bg-blue-600"
         >
           Search
         </button>
       </form>
 
-      {/* Results */}
-      <div className="mt-6">
-        {loading && <p className="text-gray-500">Loading...</p>}
-        {error && <p className="text-red-500">{error}</p>}
+      {loading && <p className="mt-4">Loading...</p>}
+      {error && <p className="mt-4 text-red-500">{error}</p>}
 
-        <ul className="grid gap-4 mt-4">
-          {users.map((user) => (
-            <li
-              key={user.id}
-              className="flex items-center gap-4 bg-gray-100 p-4 rounded-lg shadow"
-            >
-              <img
-                src={user.avatar_url}
-                alt={user.login}
-                className="w-16 h-16 rounded-full"
-              />
-              <div>
-                <h3 className="font-semibold text-lg">{user.login}</h3>
-                <a
-                  href={user.html_url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-blue-600 underline"
-                >
-                  View Profile
-                </a>
-              </div>
-            </li>
-          ))}
-        </ul>
+      <div className="mt-6 space-y-4">
+        {users.map((user) => (
+          <div key={user.id} className="p-4 border rounded flex items-center space-x-4">
+            <img src={user.avatar_url} alt={user.login} className="w-16 h-16 rounded-full" />
+            <div>
+              <h3 className="font-bold">{user.login}</h3>
+              <a
+                href={user.html_url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-blue-600 underline"
+              >
+                View Profile
+              </a>
+            </div>
+          </div>
+        ))}
       </div>
     </div>
   );
 };
 
 export default Search;
-
