@@ -1,21 +1,16 @@
 import axios from "axios";
 
-// 🔍 Function to search users with advanced criteria
-export const fetchUserData = async (username, location = "", minRepos = 0) => {
-  try {
-    // Build the query string
-    let query = `${username}`;
-    if (location) query += `+location:${location}`;
-    if (minRepos > 0) query += `+repos:>=${minRepos}`;
+export const fetchUserData = async (username, location = "", minRepos = 0, page = 1) => {
+  let query = `${username}`;
+  if (location) query += `+location:${location}`;
+  if (minRepos > 0) query += `+repos:>=${minRepos}`;
 
-    // ✅ Hardcode the string so the checker sees it
-    const url = `https://api.github.com/search/users?q=${query}`;
+  const url = `https://api.github.com/search/users?q=${query}&page=${page}&per_page=20`;
 
-    const response = await axios.get(url);
+  const headers = {};
+  const token = import.meta.env.VITE_GITHUB_TOKEN;
+  if (token) headers.Authorization = `token ${token}`;
 
-    // Return list of users
-    return response.data.items;
-  } catch (error) {
-    throw error;
-  }
+  const { data } = await axios.get(url, { headers });
+  return data.items;
 };
