@@ -16,7 +16,8 @@ function HomePage() {
         🍲 Recipe Sharing Platform
       </h1>
 
-      <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+      {/* 👇 Added grid-cols-1 for mobile */}
+      <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
         {recipes.map((recipe) => (
           <div
             key={recipe.id}
@@ -32,15 +33,3 @@ function HomePage() {
                 {recipe.title}
               </h2>
               <p className="text-gray-600 mt-2">{recipe.summary}</p>
-              <button className="mt-4 inline-block text-blue-500 hover:text-blue-700 font-medium">
-                View Recipe →
-              </button>
-            </div>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-}
-
-export default HomePage;
